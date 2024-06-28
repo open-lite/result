@@ -1,4 +1,4 @@
-#include "result.hpp"
+#include "result/result_type.hpp"
 #include <type_traits>
 
 
