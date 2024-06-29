@@ -9,26 +9,28 @@
 
 
 namespace ol {
-    template<const char* Name, impl::desc_arr_str_type* DescArr, typename ErrEnum, int (*ErrcMapFn)(int)>
+    template<const char* Name, typename ErrEnum, std::string (*DescFn)(int), int (*ErrcMapFn)(int)>
 	const char*
-    basic_error_category<Name, DescArr, ErrEnum, ErrcMapFn>::name() const noexcept {
+    basic_error_category<Name, ErrEnum, DescFn, ErrcMapFn>::name() const noexcept {
 		return Name;
 	}
 
-    template<const char* Name, impl::desc_arr_str_type* DescArr, typename ErrEnum, int (*ErrcMapFn)(int)>
+    template<const char* Name, typename ErrEnum, std::string (*DescFn)(int), int (*ErrcMapFn)(int)>
 	std::string 
-    basic_error_category<Name, DescArr, ErrEnum, ErrcMapFn>::message(int c) const {
-		if (c >= 0 && c < ErrEnum::num_codes)
-			return std::string(DescArr[c]);
+    basic_error_category<Name, ErrEnum, DescFn, ErrcMapFn>::message(int c) const {
+		if (c < 0 || c >= ErrEnum::num_codes) 
+			std::string("<unknown error code; no message available>");
 
-		return std::string(DescArr[ErrEnum::unknown]);
+		std::string msg = impl::category_fn<DescFn, ErrcMapFn>::get_desc(c);
+		if (!msg.empty())
+			return msg;
+		return std::string("<no message provided for given error code>");
 	}
 
-    template<const char* Name, impl::desc_arr_str_type* DescArr, typename ErrEnum, int (*ErrcMapFn)(int)>
+    template<const char* Name, typename ErrEnum, std::string (*DescFn)(int), int (*ErrcMapFn)(int)>
 	std::error_condition 
-    basic_error_category<Name, DescArr, ErrEnum, ErrcMapFn>::default_error_condition(int c) const noexcept {
-        //TODO still needs proper testing for when ErrcMapFn != nullptr
-		if (int mapped_c = impl::to_errc<ErrcMapFn>{}(c))
+    basic_error_category<Name, ErrEnum, DescFn, ErrcMapFn>::default_error_condition(int c) const noexcept {
+		if (int mapped_c = impl::category_fn<DescFn, ErrcMapFn>::to_errc(c))
 			return std::make_error_condition(static_cast<std::errc>(mapped_c));
 
 		return std::error_condition(c, *this);

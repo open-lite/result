@@ -16,7 +16,7 @@ using desc_arr_str_type = char const*;
 
 
 namespace ol {
-    template<const char* Name, impl::desc_arr_str_type* DescArr, typename ErrEnum, int (*ErrcMapFn)(int) = nullptr>
+    template<const char* Name, typename ErrEnum, std::string (*DescFn)(int) = nullptr, int (*ErrcMapFn)(int) = nullptr>
     struct basic_error_category : public std::error_category {
         constexpr basic_error_category() noexcept = default;
         virtual ~basic_error_category() = default;
@@ -28,17 +28,34 @@ namespace ol {
     };
 }
 
+namespace ol {
+    template<impl::desc_arr_str_type* Arr>
+    std::string error_category_array(int c) { return std::string(Arr[c]); }
+}
 
 
 namespace ol {
 namespace impl {
     template<int (*ErrcMapFn)(int)>
-    struct to_errc {
+    struct to_errc_fn {
         int operator()(int c) { return ErrcMapFn(c); }
     };
-
-    template<> struct to_errc<nullptr> {
+    template<> struct to_errc_fn<nullptr> {
         int operator()(int c) { return 0; }
+    };
+
+    template<std::string (*DescFn)(int)>
+    struct get_desc_fn {
+        std::string operator()(int c) { return DescFn(c); }
+    };
+    template<> struct get_desc_fn<nullptr> {
+        std::string operator()(int c) { return ""; }
+    };
+
+    template<std::string (*DescFn)(int), int (*ErrcMapFn)(int)>
+    struct category_fn {
+        inline static int to_errc(int c) { return to_errc_fn<ErrcMapFn>{}(c); };
+        inline static std::string get_desc(int c) { return get_desc_fn<DescFn>{}(c); };
     };
 }
 }

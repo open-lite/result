@@ -1,10 +1,10 @@
 #pragma once
 
 
-#define OL_RESULT_DECLARE_AS_ERROR_CODE(type_ns, type_name, desc_arr, errc_map_arr, category_name) \
+#define OL_RESULT_DECLARE_AS_ERROR_CODE(type_ns, type_name, desc_fn, errc_map_fn, category_name) \
 namespace type_ns { \
     namespace impl { constexpr static const char category_str[] = #category_name; } \
-    using category = ::ol::basic_error_category<impl::category_str, desc_arr, type_name, errc_map_arr>; \
+    using category = ::ol::basic_error_category<impl::category_str, type_name, desc_fn, errc_map_fn>; \
     inline std::error_code make_error_code(type_name e) { return { static_cast<int>(e), category()}; } \
     inline std::error_condition make_error_condition(type_name e) { return {static_cast<int>(e), category()}; } \
 } \
