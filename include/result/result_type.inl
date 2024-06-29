@@ -31,37 +31,37 @@ namespace ol {
 
 namespace ol {
     template<typename T, typename E>
-    constexpr const T* result<T,E>::operator->() const noexcept { return &result_base<T,E>::assume_value(); }
+    constexpr const T* result<T,E>::operator->() const noexcept { return &result_base<T, E>::assume_value(); }
 
     template<typename T, typename E>
-    constexpr       T* result<T,E>::operator->()       noexcept { return &result_base<T,E>::assume_value(); }
+    constexpr       T* result<T,E>::operator->()       noexcept { return &result_base<T, E>::assume_value(); }
 
 
     template<typename T, typename E>
-    constexpr const T&  result<T,E>::operator*() const&  noexcept { return result_base<T,E>::assume_value(); }
+    constexpr const T&  result<T,E>::operator*() const&  noexcept { return result_base<T, E>::assume_value(); }
 
     template<typename T, typename E>
-    constexpr       T&  result<T,E>::operator*() &       noexcept { return result_base<T,E>::assume_value(); }
+    constexpr       T&  result<T,E>::operator*() &       noexcept { return result_base<T, E>::assume_value(); }
 
     template<typename T, typename E>
-    constexpr const T&& result<T,E>::operator*() const&& noexcept { return result_base<T,E>::assume_value(); }
+    constexpr const T&& result<T,E>::operator*() const&& noexcept { return std::move(*this).assume_value(); }
 
     template<typename T, typename E>
-    constexpr       T&& result<T,E>::operator*() &&      noexcept { return result_base<T,E>::assume_value(); }
+    constexpr       T&& result<T,E>::operator*() &&      noexcept { return std::move(*this).assume_value(); }
 }
 
 namespace ol {
     template<typename T, typename E>
-    constexpr const E&  result<T,E>::error() const&  noexcept { return result_base<T,E>::assume_error(); }
+    constexpr const E&  result<T,E>::error() const&  noexcept { return result_base<T, E>::assume_error(); }
 
     template<typename T, typename E>
-    constexpr       E&  result<T,E>::error() &       noexcept { return result_base<T,E>::assume_error(); }
+    constexpr       E&  result<T,E>::error() &       noexcept { return result_base<T, E>::assume_error(); }
 
     template<typename T, typename E>
-    constexpr const E&& result<T,E>::error() const&& noexcept { return result_base<T,E>::assume_error(); }
+    constexpr const E&& result<T,E>::error() const&& noexcept { return std::move(*this).assume_error(); }
 
     template<typename T, typename E>
-    constexpr       E&& result<T,E>::error() &&      noexcept { return result_base<T,E>::assume_error(); }
+    constexpr       E&& result<T,E>::error() &&      noexcept { return std::move(*this).assume_error(); }
 }
 
 namespace ol {
