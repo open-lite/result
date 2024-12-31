@@ -4,27 +4,34 @@
 
 ///// result<T, E> ////
 namespace ol {
+    template<typename T, typename E>
+    template<typename U, typename std::enable_if_t<std::is_default_constructible<U>::value, bool>>
+    constexpr result<T,E>::result() noexcept
+        : result_base<T,E>{in_place_type_t<T>{}} {}
+}
+
+namespace ol {
     #if __cpp_lib_expected >= 202202L
     template<typename T, typename E>
     template<class... Args>
     constexpr explicit result<T,E>::result(std::in_place_t, Args&&... args) 
-        : result_base{in_place_type_t<T>{}, std::forward<Args>(args)...} {}
+        : result_base<T,E>{in_place_type_t<T>{}, std::forward<Args>(args)...} {}
 
     template<typename T, typename E>
     template<class U, class... Args>
     constexpr explicit result<T,E>::result(std::in_place_t, std::initializer_list<U> il, Args&&... args)
-        : result_base{in_place_type_t<T>{}, il, std::forward<Args>(args)...} {}
+        : result_base<T,E>{in_place_type_t<T>{}, il, std::forward<Args>(args)...} {}
 
 
     template<typename T, typename E>
     template<class... Args>
     constexpr explicit result<T,E>::result(std::unexpect_t, Args&&... args)
-        : result_base{in_place_type_t<E>{}, std::forward<Args>(args)...} {}
+        : result_base<T,E>{in_place_type_t<E>{}, std::forward<Args>(args)...} {}
 
     template<typename T, typename E>
     template<class U, class... Args>
     constexpr explicit result<T,E>::result(std::unexpect_t, std::initializer_list<U> il, Args&&... args)
-        : result_base{in_place_type_t<E>{}, il, std::forward<Args>(args)...} {}
+        : result_base<T,E>{in_place_type_t<E>{}, il, std::forward<Args>(args)...} {}
     #endif
 }
 
@@ -99,21 +106,27 @@ namespace ol {
 
 ///// result<void, E> ////
 namespace ol {
+    template<typename E>
+    constexpr result<void,E>::result() noexcept
+        : result_base<void,E>{in_place_type_t<void>{}} {}
+}
+
+namespace ol {
     #if __cpp_lib_expected >= 202202L
     template<typename E>
     constexpr explicit result<void,E>::result(std::in_place_t) 
-        : result_base{in_place_type_t<void>{}} {}
+        : result_base<void,E>{in_place_type_t<void>{}} {}
 
 
     template<typename E>
     template<class... Args>
     constexpr explicit result<void,E>::result(std::unexpect_t, Args&&... args)
-        : result_base{in_place_type_t<E>{}, std::forward<Args>(args)...} {}
+        : result_base<void,E>{in_place_type_t<E>{}, std::forward<Args>(args)...} {}
 
     template<typename E>
     template<class U, class... Args>
     constexpr explicit result<void,E>::result(std::unexpect_t, std::initializer_list<U> il, Args&&... args)
-        : result_base{in_place_type_t<E>{}, il, std::forward<Args>(args)...} {}
+        : result_base<void,E>{in_place_type_t<E>{}, il, std::forward<Args>(args)...} {}
     #endif
 }
 

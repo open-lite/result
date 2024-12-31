@@ -21,6 +21,9 @@ namespace ol {
     struct result : public result_base<T, E> {
         using result_base<T, E>::result_base;
 
+        template<typename U = T, typename std::enable_if_t<std::is_default_constructible<U>::value, bool> = true>
+        constexpr result() noexcept;
+
         #if __cpp_lib_expected >= 202202L
         template<class... Args>
         constexpr explicit result(std::in_place_t, Args&&... args);
@@ -85,6 +88,8 @@ namespace ol {
     template<typename E>
     struct result<void, E> : public result_base<void, E> {
         using result_base<void, E>::result_base;
+
+        constexpr result() noexcept;
 
         #if __cpp_lib_expected >= 202202L
         constexpr explicit result(std::in_place_t) noexcept;
