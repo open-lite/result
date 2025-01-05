@@ -1,5 +1,6 @@
 #include "result/result_type.hpp"
 #include <type_traits>
+#include "result/in_place_type.hpp"
 
 
 ///// result<T, E> ////
