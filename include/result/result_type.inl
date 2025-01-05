@@ -1,14 +1,40 @@
 #include "result/result_type.hpp"
 #include <type_traits>
-#include "result/in_place_type.hpp"
 
 
 ///// result<T, E> ////
 namespace ol {
     template<typename T, typename E>
-    template<typename U, typename std::enable_if_t<std::is_default_constructible<U>::value, bool>>
+    template<typename U, std::enable_if_t<std::is_default_constructible<U>::value, bool>>
     constexpr result<T,E>::result() noexcept
         : result_base<T,E>{in_place_type_t<T>{}} {}
+}
+
+
+namespace ol {
+    template<typename T, typename E>
+    template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<U, G, T, E>::value, bool>>
+    constexpr result<T,E>::result(const basic_result_base<U, G, P>& other) : result_base<T,E>{other.has_value() ? 
+        result_base<T,E>{in_place_type<T>, other.assume_value()} :
+        result_base<T,E>{in_place_type<E>, static_cast<E>(other.assume_error().value())} } {}
+
+    template<typename T, typename E>
+    template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<U, G, T, E>::value, bool>>
+    constexpr result<T,E>::result(basic_result_base<U, G, P>&& other) : result_base<T,E>{other.has_value() ? 
+        result_base<T,E>{in_place_type<T>, std::move(other).assume_value()} :
+        result_base<T,E>{in_place_type<E>, static_cast<E>(std::move(other).assume_error().value())} } {}
+
+    template<typename T, typename E>
+    template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<U, G, T, E>::value, bool>>
+    constexpr result<T,E>::result(const basic_result_base<U, G, P>& other) : result_base<T,E>{other.has_value() ? 
+        result_base<T,E>{in_place_type<T>, other.assume_value()} :
+        result_base<T,E>{in_place_type<E>, make_error_code(other.assume_error())} } {}
+
+    template<typename T, typename E>
+    template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<U, G, T, E>::value, bool>>
+    constexpr result<T,E>::result(basic_result_base<U, G, P>&& other) : result_base<T,E>{other.has_value() ? 
+        result_base<T,E>{in_place_type<T>, std::move(other).assume_value()} :
+        result_base<T,E>{in_place_type<E>, make_error_code(std::move(other).assume_error())} } {}
 }
 
 namespace ol {
@@ -74,13 +100,13 @@ namespace ol {
 
 namespace ol {
     template<typename T, typename E>
-    template<class U, typename std::enable_if<std::is_copy_constructible<U>::value && std::is_convertible<U&&, T>::value, bool>::type>
+    template<class U, std::enable_if_t<std::is_copy_constructible<U>::value && std::is_convertible<U&&, T>::value, bool>>
     constexpr T result<T,E>::value_or(U&& default_value) const& {
         return bool(*this) ? **this : static_cast<T>(std::forward<U>(default_value));
     }
     
     template<typename T, typename E>
-    template<class U, typename std::enable_if<std::is_move_constructible<U>::value && std::is_convertible<U&&, T>::value, bool>::type>
+    template<class U, std::enable_if_t<std::is_move_constructible<U>::value && std::is_convertible<U&&, T>::value, bool>>
     constexpr T result<T,E>::value_or(U&& default_value) && {
         return bool(*this) ? std::move(**this) : static_cast<T>(std::forward<U>(default_value));
     }
@@ -89,14 +115,14 @@ namespace ol {
 
 namespace ol {
     template<typename T, typename E>
-    template<class... Args, typename std::enable_if<std::is_nothrow_constructible<T, Args...>::value, bool>::type>
+    template<class... Args, std::enable_if_t<std::is_nothrow_constructible<T, Args...>::value, bool>>
     constexpr T& result<T,E>::emplace(Args&&... args) noexcept {
         *static_cast<result_base<T,E>*>(this) = result_base<T,E>{in_place_type<T>, std::forward<Args>(args)...};
         return *this;
     }
 
     template<typename T, typename E>
-    template<class U, class... Args, typename std::enable_if<std::is_nothrow_constructible<T, std::initializer_list<U>&, Args...>::value, bool>::type>
+    template<class U, class... Args, std::enable_if_t<std::is_nothrow_constructible<T, std::initializer_list<U>&, Args...>::value, bool>>
     constexpr T& result<T,E>::emplace(std::initializer_list<U> il, Args&&... args) noexcept {
         *static_cast<result_base<T,E>*>(this) = result_base<T,E>{in_place_type<T>, il, std::forward<Args>(args)...};
         return *this;
@@ -110,6 +136,33 @@ namespace ol {
     template<typename E>
     constexpr result<void,E>::result() noexcept
         : result_base<void,E>{in_place_type_t<void>{}} {}
+}
+
+
+namespace ol {
+    template<typename E>
+    template<typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<void, G, void, E>::value, bool>>
+    constexpr result<void,E>::result(const basic_result_base<void, G, P>& other) : result_base<void,E>{other.has_value() ? 
+        result_base<void,E>{in_place_type<void>} :
+        result_base<void,E>{in_place_type<E>, static_cast<E>(other.assume_error().value())} } {}
+
+    template<typename E>
+    template<typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<void, G, void, E>::value, bool>>
+    constexpr result<void,E>::result(basic_result_base<void, G, P>&& other) : result_base<void,E>{other.has_value() ? 
+        result_base<void,E>{in_place_type<void>} :
+        result_base<void,E>{in_place_type<E>, static_cast<E>(std::move(other).assume_error().value())} } {}
+
+    template<typename E>
+    template<typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<void, G, void, E>::value, bool>>
+    constexpr result<void,E>::result(const basic_result_base<void, G, P>& other) : result_base<void,E>{other.has_value() ? 
+        result_base<void,E>{in_place_type<void>} :
+        result_base<void,E>{in_place_type<E>, make_error_code(other.assume_error())} } {}
+
+    template<typename E>
+    template<typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<void, G, void, E>::value, bool>>
+    constexpr result<void,E>::result(basic_result_base<void, G, P>&& other) : result_base<void,E>{other.has_value() ? 
+        result_base<void,E>{in_place_type<void>} :
+        result_base<void,E>{in_place_type<E>, make_error_code(std::move(other).assume_error())} } {}
 }
 
 namespace ol {

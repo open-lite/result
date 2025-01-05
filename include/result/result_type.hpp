@@ -4,8 +4,13 @@
 #include <outcome/result.hpp>
 #include <outcome/config.hpp>
 #include <outcome/policy/terminate.hpp>
+#include "result/type_traits.hpp"
+#include "type_traits.hpp"
 
 namespace ol {
+    template<typename T, typename E, typename P>
+    using basic_result_base = OUTCOME_V2_NAMESPACE::result<T, E, P>;
+
 #if __cpp_exceptions
     template<typename T, typename E>
     using result_base = OUTCOME_V2_NAMESPACE::checked<T, E>;
@@ -23,6 +28,15 @@ namespace ol {
 
         template<typename U = T, std::enable_if_t<std::is_default_constructible<U>::value, bool> = true>
         constexpr result() noexcept;
+
+        template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<U, G, T, E>::value, bool> = true>
+        constexpr result(const basic_result_base<U, G, P>& other);
+        template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<U, G, T, E>::value, bool> = true>
+        constexpr result(basic_result_base<U, G, P>&& other);
+        template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<U, G, T, E>::value, bool> = true>
+        constexpr result(const basic_result_base<U, G, P>& other);
+        template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<U, G, T, E>::value, bool> = true>
+        constexpr result(basic_result_base<U, G, P>&& other);
 
         #if __cpp_lib_expected >= 202202L
         template<class... Args>
@@ -90,6 +104,15 @@ namespace ol {
         using result_base<void, E>::result_base;
 
         constexpr result() noexcept;
+
+        template<typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<void, G, void, E>::value, bool> = true>
+        constexpr result(const basic_result_base<void, G, P>& other);
+        template<typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<void, G, void, E>::value, bool> = true>
+        constexpr result(basic_result_base<void, G, P>&& other);
+        template<typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<void, G, void, E>::value, bool> = true>
+        constexpr result(const basic_result_base<void, G, P>& other);
+        template<typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<void, G, void, E>::value, bool> = true>
+        constexpr result(basic_result_base<void, G, P>&& other);
 
         #if __cpp_lib_expected >= 202202L
         constexpr explicit result(std::in_place_t) noexcept;

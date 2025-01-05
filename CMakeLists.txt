@@ -14,9 +14,10 @@ set(${PROJECT_NAME}_HEADER_FILES
     "basic_error_category.hpp"
     "basic_error_category.inl"
 
-    "in_place_type.hpp"
+    "type_traits.hpp"
 
     "declare_error_code.h"
+    "verify.h"
 )
 
 list(TRANSFORM ${PROJECT_NAME}_HEADER_FILES PREPEND "include/${PROJECT_NAME}/")
