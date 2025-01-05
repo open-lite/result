@@ -21,7 +21,7 @@ namespace ol {
     struct result : public result_base<T, E> {
         using result_base<T, E>::result_base;
 
-        template<typename U = T, typename std::enable_if_t<std::is_default_constructible<U>::value, bool> = true>
+        template<typename U = T, std::enable_if_t<std::is_default_constructible<U>::value, bool> = true>
         constexpr result() noexcept;
 
         #if __cpp_lib_expected >= 202202L
@@ -49,15 +49,15 @@ namespace ol {
         constexpr const E&& error() const&& noexcept;
         constexpr       E&& error() &&      noexcept;
         
-        template<class U, typename std::enable_if<std::is_copy_constructible<U>::value && std::is_convertible<U&&, T>::value, bool>::type = true>
+        template<class U, std::enable_if_t<std::is_copy_constructible<U>::value && std::is_convertible<U&&, T>::value, bool> = true>
         constexpr T value_or(U&& default_value) const&;
-        template<class U, typename std::enable_if<std::is_move_constructible<U>::value && std::is_convertible<U&&, T>::value, bool>::type = true>
+        template<class U, std::enable_if_t<std::is_move_constructible<U>::value && std::is_convertible<U&&, T>::value, bool> = true>
         constexpr T value_or(U&& default_value) &&;
 
 
-        template<class... Args, typename std::enable_if<std::is_nothrow_constructible<T, Args...>::value, bool>::type = true>
+        template<class... Args, std::enable_if_t<std::is_nothrow_constructible<T, Args...>::value, bool> = true>
         constexpr T& emplace(Args&&... args ) noexcept;
-        template<class U, class... Args, typename std::enable_if<std::is_nothrow_constructible<T, std::initializer_list<U>&, Args...>::value, bool>::type = true>
+        template<class U, class... Args, std::enable_if_t<std::is_nothrow_constructible<T, std::initializer_list<U>&, Args...>::value, bool> = true>
         constexpr T& emplace(std::initializer_list<U> il, Args&&... args ) noexcept;
 
 
