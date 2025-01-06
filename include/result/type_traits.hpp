@@ -32,3 +32,18 @@ namespace ol {
     template<typename FromT, typename FromE, typename ToT, typename ToE>
     struct is_convertible_from_enum_to_error_code : is_convertible_from_error_code_to_enum<ToT, ToE, FromT, FromE> {};
 }
+
+
+
+namespace ol {
+namespace impl {
+    template<typename T, typename BaseT>
+    struct with_default_constructor : public BaseT {
+        using BaseT::BaseT;
+        constexpr with_default_constructor() noexcept : BaseT{OUTCOME_V2_NAMESPACE::in_place_type<T>} {}
+    };
+
+    template<typename T, typename BaseT>
+    using select_result_base_default_ctor = std::conditional_t<std::is_default_constructible<T>::value, with_default_constructor<T, BaseT>, BaseT>;
+}
+}

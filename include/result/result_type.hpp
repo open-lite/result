@@ -23,11 +23,10 @@ namespace ol {
 
 namespace ol {
     template<typename T, typename E = std::error_code>
-    struct result : public result_base<T, E> {
-        using result_base<T, E>::result_base;
-
-        template<typename U = T, std::enable_if_t<std::is_default_constructible<U>::value, bool> = true>
-        constexpr result() noexcept;
+    class result : public impl::select_result_base_default_ctor<T, result_base<T,E>> {
+        using base_type = impl::select_result_base_default_ctor<T, result_base<T,E>>;
+    public:
+        using base_type::base_type;
 
         template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<U, G, T, E>::value, bool> = true>
         constexpr result(const basic_result_base<U, G, P>& other);
@@ -76,31 +75,32 @@ namespace ol {
 
 
     public:
-        using result_base<T, E>::operator=;
+        using base_type::operator=;
 
-        using result_base<T, E>::operator bool;
-        using result_base<T, E>::has_value;
-        using result_base<T, E>::value;
+        using base_type::operator bool;
+        using base_type::has_value;
+        using base_type::value;
 
-        using result_base<T, E>::swap;
-        using result_base<T, E>::operator==;
-        using result_base<T, E>::operator!=;
+        using base_type::swap;
+        using base_type::operator==;
+        using base_type::operator!=;
 
     protected:
-        using result_base<T, E>::has_error;
-        using result_base<T, E>::has_exception;
-        using result_base<T, E>::has_failure;
-        using result_base<T, E>::has_lost_consistency;
-        using result_base<T, E>::assume_error;
-        using result_base<T, E>::assume_value;
-        using result_base<T, E>::as_failure;
+        using base_type::has_error;
+        using base_type::has_exception;
+        using base_type::has_failure;
+        using base_type::has_lost_consistency;
+        using base_type::assume_error;
+        using base_type::assume_value;
+        using base_type::as_failure;
     };
 }
 
 
 namespace ol {
     template<typename E>
-    struct result<void, E> : public result_base<void, E> {
+    class result<void, E> : public result_base<void, E> {
+    public:
         using result_base<void, E>::result_base;
 
         constexpr result() noexcept;

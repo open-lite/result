@@ -5,14 +5,6 @@
 ///// result<T, E> ////
 namespace ol {
     template<typename T, typename E>
-    template<typename U, std::enable_if_t<std::is_default_constructible<U>::value, bool>>
-    constexpr result<T,E>::result() noexcept
-        : result_base<T,E>{in_place_type_t<T>{}} {}
-}
-
-
-namespace ol {
-    template<typename T, typename E>
     template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<U, G, T, E>::value, bool>>
     constexpr result<T,E>::result(const basic_result_base<U, G, P>& other) : result_base<T,E>{other.has_value() ? 
         result_base<T,E>{in_place_type<T>, other.assume_value()} :
