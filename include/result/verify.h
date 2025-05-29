@@ -27,23 +27,27 @@ lhs = *var;
 
 
 
-#define RESULT_CAST_VERIFY(fn, err_type) \
-{ \
-auto r = fn; \
-if(!r.has_value()) return static_cast<err_type>(r.error()); \
-}
+
+#define RESULT_VERIFY_UNSCOPED_CAST_ERR(fn, var, err_type) \
+auto var = fn; \
+if(!var.has_value()) return static_cast<err_type>(var.error()); \
+
+#define RESULT_TRY_MOVE_UNSCOPED_CAST_ERR(lhs, rhs, var, err_type) \
+RESULT_VERIFY_UNSCOPED_CAST_ERR(rhs, var, err_type) \
+lhs = *std::move(var);
+
+#define RESULT_TRY_COPY_UNSCOPED_CAST_ERR(lhs, rhs, var) \
+RESULT_VERIFY_UNSCOPED_CAST_ERR(rhs, var, err_type) \
+lhs = *var;
 
 
-#define RESULT_CAST_TRY_MOVE(lhs, rhs, err_type) \
-{ \
-auto r = rhs; \
-if(!r.has_value()) return static_cast<err_type>(r.error()); \
-lhs = *std::move(r); \
-} 
 
-#define RESULT_CAST_TRY_COPY(lhs, rhs, err_type) \
-{ \
-auto r = rhs; \
-if(!r.has_value()) return static_cast<err_type>(r.error()); \
-lhs = *r; \
-} 
+#define RESULT_VERIFY_CAST_ERR(fn, err_type) \
+{ RESULT_VERIFY_UNSCOPED_CAST_ERR(fn, r, err_type) }
+
+
+#define RESULT_TRY_MOVE_CAST_ERR(lhs, rhs, err_type) \
+{ RESULT_TRY_MOVE_UNSCOPED_CAST_ERR(lhs, rhs, r, err_type) } 
+
+#define RESULT_TRY_COPY_CAST_ERR(lhs, rhs, err_type) \
+{ RESULT_TRY_COPY_UNSCOPED_CAST_ERR(lhs, rhs, r, err_type) }
