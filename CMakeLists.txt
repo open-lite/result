@@ -18,6 +18,7 @@ set(${PROJECT_NAME}_HEADER_FILES
 
     "declare_error_code.h"
     "verify.h"
+    "nodiscard.h"
 )
 
 list(TRANSFORM ${PROJECT_NAME}_HEADER_FILES PREPEND "include/${PROJECT_NAME}/")

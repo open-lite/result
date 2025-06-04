@@ -5,7 +5,7 @@
 #include <outcome/config.hpp>
 #include <outcome/policy/terminate.hpp>
 #include "result/type_traits.hpp"
-#include "type_traits.hpp"
+#include "result/nodiscard.h"
 
 namespace ol {
     template<typename T, typename E, typename P>
@@ -23,7 +23,8 @@ namespace ol {
 
 namespace ol {
     template<typename T, typename E = std::error_code>
-    class result : public impl::select_result_base_default_ctor<T, result_base<T,E>> {
+    class __RESULT_NODISCARD("Return type is a non-void result - it should be verified and extracted with RESULT_TRY_*") 
+    result : public impl::select_result_base_default_ctor<T, result_base<T,E>> {
         using base_type = impl::select_result_base_default_ctor<T, result_base<T,E>>;
     public:
         using base_type::base_type;
@@ -99,7 +100,7 @@ namespace ol {
 
 namespace ol {
     template<typename E>
-    class result<void, E> : public result_base<void, E> {
+    class __RESULT_NODISCARD("Return type is a result - it should be verified with RESULT_VERIFY") result<void, E> : public result_base<void, E> {
     public:
         using result_base<void, E>::result_base;
 
