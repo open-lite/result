@@ -50,7 +50,24 @@ namespace impl {
 
 namespace ol {
     template<impl::desc_arr_str_type* Arr>
-    std::string error_category_array(int c) { return std::string(Arr[c]); }
+    std::string error_category_msg_array(int c) { return std::string(Arr[c]); }
+
+    template<typename T, T& map>
+    std::string error_category_msg_map(int c) { 
+        if (auto search = map.find(c); search != map.end())
+            return std::string(search->second);
+        return std::string(map.find(0)->second);
+    }
+
+    template<int* Arr>
+    int error_category_errc_array(int c) { return Arr[c]; }
+
+    template<typename T, T& map>
+    int error_category_errc_map(int c) { 
+        if (auto search = map.find(c); search != map.end())
+            return search->second;
+        return map.find(0)->second;
+    }
 }
 
 #include "result/basic_error_category.inl"
