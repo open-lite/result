@@ -201,6 +201,5 @@ namespace ol {
     template<typename E>
     constexpr void result<void,E>::emplace() noexcept {
         *static_cast<result_base<void,E>*>(this) = result_base<void,E>{in_place_type<void>};
-        return *this;
     }
 }
