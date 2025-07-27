@@ -6,6 +6,7 @@
 #include <outcome/policy/terminate.hpp>
 #include "result/type_traits.hpp"
 #include "result/nodiscard.h"
+#include "type_traits.hpp"
 
 namespace ol {
     template<typename T, typename E, typename P>
@@ -159,5 +160,17 @@ namespace ol {
         using result_base<void, E>::as_failure;
     };
 }
+
+
+#if __cpp_lib_is_invocable >= 201703L
+template<typename LeftResultCallable, typename RightResultCallable, std::enable_if_t<ol::impl::is_result_invocable<LeftResultCallable&&>::value && ol::impl::is_result_invocable<RightResultCallable&&>::value, bool> = true>
+constexpr auto operator&&(LeftResultCallable&& lhs, RightResultCallable&& rhs) -> std::common_type_t<std::invoke_result_t<LeftResultCallable&&>, std::invoke_result_t<RightResultCallable&&>>;
+
+template<typename T, typename E, typename ResultCallable, std::enable_if_t<ol::impl::is_result_invocable<ResultCallable&&>::value, bool> = true>
+constexpr ol::result<T, E> operator&&(ol::result<T, E> const& lhs, ResultCallable&& rhs);
+
+template<typename ResultCallable, typename T, typename E, std::enable_if_t<ol::impl::is_result_invocable<ResultCallable&&>::value, bool> = true>
+constexpr ol::result<T, E> operator&&(ResultCallable&& lhs, ol::result<T, E> const& rhs);
+#endif
 
 #include "result/result_type.inl"

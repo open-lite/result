@@ -10,6 +10,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 set(${PROJECT_NAME}_HEADER_FILES
     "result_type.hpp"
     "result_type.inl"
+    
+    "to_result.hpp"
 
     "basic_error_category.hpp"
     "basic_error_category.inl"

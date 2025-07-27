@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <outcome.hpp>
 #include <type_traits>
 
@@ -47,3 +48,23 @@ namespace impl {
     using select_result_base_default_ctor = std::conditional_t<std::is_default_constructible<T>::value, with_default_constructor<T, BaseT>, BaseT>;
 }
 }
+
+
+
+#if __cpp_lib_is_invocable >= 201703L
+namespace ol {
+namespace impl {
+    template <template<typename...> class TemplateT, typename T>
+    struct is_specialization_of : std::false_type {};
+
+    template <template<typename...> class TemplateT, typename... Args>
+    struct is_specialization_of<TemplateT, TemplateT<Args...>> : std::true_type {};
+
+
+    template <typename Fn, bool = std::is_invocable_v<Fn> && !is_specialization_of<result, Fn>::value>
+    struct is_result_invocable : std::false_type {};
+    template <typename Fn>
+    struct is_result_invocable<Fn, true> : is_specialization_of<result, std::invoke_result_t<Fn>> {};
+}
+}
+#endif
