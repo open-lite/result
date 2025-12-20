@@ -6,7 +6,10 @@
 #include <outcome/policy/terminate.hpp>
 #include "result/type_traits.hpp"
 #include "result/nodiscard.h"
-#include "type_traits.hpp"
+#if __cpp_lib_expected >= 202202L
+#include <expected>
+#endif
+
 
 namespace ol {
     template<typename T, typename E, typename P>
@@ -31,24 +34,24 @@ namespace ol {
         using base_type::base_type;
 
         template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<U, G, T, E>::value, bool> = true>
-        constexpr result(const basic_result_base<U, G, P>& other);
+        constexpr result(const basic_result_base<U, G, P>& other) noexcept;
         template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<U, G, T, E>::value, bool> = true>
-        constexpr result(basic_result_base<U, G, P>&& other);
+        constexpr result(basic_result_base<U, G, P>&& other) noexcept;
         template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<U, G, T, E>::value, bool> = true>
-        constexpr result(const basic_result_base<U, G, P>& other);
+        constexpr result(const basic_result_base<U, G, P>& other) noexcept;
         template<typename U, typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<U, G, T, E>::value, bool> = true>
-        constexpr result(basic_result_base<U, G, P>&& other);
+        constexpr result(basic_result_base<U, G, P>&& other) noexcept;
 
         #if __cpp_lib_expected >= 202202L
         template<class... Args>
-        constexpr explicit result(std::in_place_t, Args&&... args);
+        constexpr explicit result(std::in_place_t, Args&&... args) noexcept;
         template<class U, class... Args>
-        constexpr explicit result(std::in_place_t, std::initializer_list<U> il, Args&&... args);
+        constexpr explicit result(std::in_place_t, std::initializer_list<U> il, Args&&... args) noexcept;
         
         template<class... Args>
-        constexpr explicit result(std::unexpect_t, Args&&... args);
+        constexpr explicit result(std::unexpect_t, Args&&... args) noexcept;
         template<class U, class... Args>
-        constexpr explicit result(std::unexpect_t, std::initializer_list<U> il, Args&&... args);
+        constexpr explicit result(std::unexpect_t, std::initializer_list<U> il, Args&&... args) noexcept;
         #endif
 
 
@@ -65,9 +68,9 @@ namespace ol {
         constexpr       E&& error() &&      noexcept;
         
         template<class U, std::enable_if_t<std::is_copy_constructible<U>::value && std::is_convertible<U&&, T>::value, bool> = true>
-        constexpr T value_or(U&& default_value) const&;
+        constexpr T value_or(U&& default_value) const& noexcept;
         template<class U, std::enable_if_t<std::is_move_constructible<U>::value && std::is_convertible<U&&, T>::value, bool> = true>
-        constexpr T value_or(U&& default_value) &&;
+        constexpr T value_or(U&& default_value) && noexcept;
 
 
         template<class... Args, std::enable_if_t<std::is_nothrow_constructible<T, Args...>::value, bool> = true>
@@ -108,21 +111,21 @@ namespace ol {
         constexpr result() noexcept;
 
         template<typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<void, G, void, E>::value, bool> = true>
-        constexpr result(const basic_result_base<void, G, P>& other);
+        constexpr result(const basic_result_base<void, G, P>& other) noexcept;
         template<typename G, typename P, std::enable_if_t<is_convertible_from_error_code_to_enum<void, G, void, E>::value, bool> = true>
-        constexpr result(basic_result_base<void, G, P>&& other);
+        constexpr result(basic_result_base<void, G, P>&& other) noexcept;
         template<typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<void, G, void, E>::value, bool> = true>
-        constexpr result(const basic_result_base<void, G, P>& other);
+        constexpr result(const basic_result_base<void, G, P>& other) noexcept;
         template<typename G, typename P, std::enable_if_t<is_convertible_from_enum_to_error_code<void, G, void, E>::value, bool> = true>
-        constexpr result(basic_result_base<void, G, P>&& other);
+        constexpr result(basic_result_base<void, G, P>&& other) noexcept;
 
         #if __cpp_lib_expected >= 202202L
         constexpr explicit result(std::in_place_t) noexcept;
         
         template<class... Args>
-        constexpr explicit result(std::unexpect_t, Args&&... args);
+        constexpr explicit result(std::unexpect_t, Args&&... args) noexcept;
         template<class U, class... Args>
-        constexpr explicit result(std::unexpect_t, std::initializer_list<U> il, Args&&... args);
+        constexpr explicit result(std::unexpect_t, std::initializer_list<U> il, Args&&... args) noexcept;
         #endif
 
 
@@ -164,13 +167,13 @@ namespace ol {
 
 #if __cpp_lib_is_invocable >= 201703L
 template<typename LeftResultCallable, typename RightResultCallable, std::enable_if_t<ol::impl::is_result_invocable<LeftResultCallable&&>::value && ol::impl::is_result_invocable<RightResultCallable&&>::value, bool> = true>
-constexpr auto operator&&(LeftResultCallable&& lhs, RightResultCallable&& rhs) -> std::common_type_t<std::invoke_result_t<LeftResultCallable&&>, std::invoke_result_t<RightResultCallable&&>>;
+constexpr auto operator&&(LeftResultCallable&& lhs, RightResultCallable&& rhs) noexcept -> std::common_type_t<std::invoke_result_t<LeftResultCallable&&>, std::invoke_result_t<RightResultCallable&&>>;
 
 template<typename T, typename E, typename ResultCallable, std::enable_if_t<ol::impl::is_result_invocable<ResultCallable&&>::value, bool> = true>
-constexpr ol::result<T, E> operator&&(ol::result<T, E> const& lhs, ResultCallable&& rhs);
+constexpr ol::result<T, E> operator&&(ol::result<T, E> const& lhs, ResultCallable&& rhs) noexcept;
 
 template<typename ResultCallable, typename T, typename E, std::enable_if_t<ol::impl::is_result_invocable<ResultCallable&&>::value, bool> = true>
-constexpr ol::result<T, E> operator&&(ResultCallable&& lhs, ol::result<T, E> const& rhs);
+constexpr ol::result<T, E> operator&&(ResultCallable&& lhs, ol::result<T, E> const& rhs) noexcept;
 #endif
 
 #include "result/result_type.inl"
