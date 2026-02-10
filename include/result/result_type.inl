@@ -1,6 +1,8 @@
 #pragma once
 #include "result/result_type.hpp"
 #include <type_traits>
+#include <utility>
+#include <memory>
 
 
 ///// result<T, E> ////
@@ -58,10 +60,10 @@ namespace ol {
 
 namespace ol {
     template<typename T, typename E>
-    constexpr const T* result<T,E>::operator->() const noexcept { return &result_base<T, E>::assume_value(); }
+    constexpr const T* result<T,E>::operator->() const noexcept { return std::addressof(result_base<T, E>::assume_value()); }
 
     template<typename T, typename E>
-    constexpr       T* result<T,E>::operator->()       noexcept { return &result_base<T, E>::assume_value(); }
+    constexpr       T* result<T,E>::operator->()       noexcept { return std::addressof(result_base<T, E>::assume_value()); }
 
 
     template<typename T, typename E>
